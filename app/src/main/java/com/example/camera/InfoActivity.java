@@ -29,8 +29,12 @@ public class InfoActivity  extends AppCompatActivity {
         tv5.setText(local);
     }
     public void startmap(View view) {
+        String latitude = getIntent().getStringExtra("LATITUDE");
+        String longitude = getIntent().getStringExtra("LONGITUDE");
         Intent intent = new Intent();
         intent.setClass(InfoActivity.this,MapActivity.class);
+        intent.putExtra("LATITUDE",latitude);
+        intent.putExtra("LONGITUDE",longitude);
         startActivity(intent);
     }
 
