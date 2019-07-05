@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-2dp"
+        android:background="@drawable/none" />
+    <Button
+        android:id="@+id/look"
+        android:layout_width="300dp"
+        android:layout_height="75dp"
+        android:layout_below="@id/imageView"
+        android:layout_marginLeft="30dp"
+        android:onClick="lookinfo"
+        android:text="查看信息" />
+
+    <Button
+        android:id="@+id/capture"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:layout_below="@id/look"
+        android:layout_marginLeft="30dp"
+        android:onClick="takephoto"
+        android:text="拍照" />
+
+    <Button
+        android:id="@+id/select"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:layout_below="@id/look"
+        android:layout_toRightOf="@id/capture"
+        android:onClick="select"
+        android:text="选取" />
+</RelativeLayout>
