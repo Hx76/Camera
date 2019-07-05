@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/glass">
+    android:background="@drawable/glassbg"
+    >
 
     <TextView
         android:id="@+id/MODEL"
@@ -90,9 +91,10 @@
         />
     <Button
         android:layout_width="125dp"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:layout_below="@id/LOCAL"
         android:layout_marginLeft="100dp"
+        android:layout_marginTop="50dp"
         android:onClick="startmap"
         android:text="查看位置"/>
 
