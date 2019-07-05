@@ -4,11 +4,12 @@ package com.example.camera;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.icu.text.IDNA;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -16,18 +17,22 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
-import android.view.Menu;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.stream.Collectors;
 
 
 public class FootActivity extends Activity {
@@ -58,7 +63,6 @@ public class FootActivity extends Activity {
         builder.detectFileUriExposure();
     }
 
-
         public void lookinfo(View view) {
             try {
                 //android读取图片EXIF信息
@@ -76,7 +80,9 @@ public class FootActivity extends Activity {
                 intent.putExtra("MAKE",smake);
                 intent.putExtra("DATE",sdate);
                 intent.putExtra("SIZE",swidth+"*"+sheight);
-                intent.putExtra("LOCAL","经度："+slatitude+" "+"纬度："+slongitude);
+                intent.putExtra("LOCAL","纬度："+slatitude+" "+"经度："+slongitude);
+                intent.putExtra("LATITUDE",slatitude);
+                intent.putExtra("LONGITUDE",slongitude);
                 startActivity(intent);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -103,6 +109,56 @@ public class FootActivity extends Activity {
     /**
      *把用户选择的图片显示在imageview中
      */
+    public static String readStreamToString(InputStream inputStream) throws IOException {
+        //创建字节数组输出流 ，用来输出读取到的内容
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        //创建读取缓存,大小为1024
+        byte[] buffer = new byte[1024];
+        //每次读取长度
+        int len = 0;
+        //开始读取输入流中的文件
+        while( (len = inputStream.read(buffer) ) != -1){ //当等于-1说明没有数据可以读取了
+            byteArrayOutputStream.write(buffer,0,len); // 把读取的内容写入到输出流中
+        }
+        //把读取到的字节数组转换为字符串
+        String result = byteArrayOutputStream.toString();
+        //关闭输入流和输出流
+        inputStream.close();
+        byteArrayOutputStream.close();
+        //返回字符串结果
+        return result;
+    }
+    private String getPath(Context context, Uri uri) {
+        String path = null;
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        if (cursor.moveToFirst()) {
+            try {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        cursor.close();
+        return path;
+    }
+    public static void inputStreamFile(InputStream is, File file) throws IOException {
+        OutputStream os = null;
+        try {
+            os = new FileOutputStream(file);
+            int len = 0;
+            byte[] buffer = new byte[8192];
+
+            while ((len = is.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+        } finally {
+            os.close();
+            is.close();
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -125,25 +181,28 @@ public class FootActivity extends Activity {
                 }
             }
             if (requestCode == REQ2) {
+                File file = new File(mFilePaths);
                 //获取选中文件的定位符
                 Uri uri = data.getData();
-                Log.e("uri", uri.toString());
                 //使用content的接口
                 ContentResolver cr = this.getContentResolver();
                 try {
                     //获取图片
                     Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
                     mimageview.setImageBitmap(bitmap);
-                } catch (FileNotFoundException e) {
-                    Log.e("Exception", e.getMessage(),e);
+                    try {
+                        inputStreamFile(cr.openInputStream(uri),file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mFilePaths = file.getPath();
+                }catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
-            }else{
-                //操作错误或没有选择图片
-                Log.i("FootActivity", "operation error");
             }
-            }
+        }
     }
-    }
+}
 
 
 
